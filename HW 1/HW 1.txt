@@ -1,0 +1,5 @@
+Question 2
+At what point do the oscillations go away?
+- After I add both the input and output capacitors.
+
+
