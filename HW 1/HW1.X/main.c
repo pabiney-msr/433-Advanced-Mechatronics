@@ -36,19 +36,18 @@
 #pragma config FUSBIDIO = 1 // USB pins controlled by USB module
 #pragma config FVBUSONIO = 1 // USB BUSON controlled by USB module
 
-
 int main() {
 
     __builtin_disable_interrupts();
 
-   //  set the CP0 CONFIG register to indicate that kseg0 is cacheable (0x3)
+    //  set the CP0 CONFIG register to indicate that kseg0 is cacheable (0x3)
     __builtin_mtc0(_CP0_CONFIG, _CP0_CONFIG_SELECT, 0xa4210583);
 
     // 0 data RAM access wait states
-   BMXCONbits.BMXWSDRM = 0x0;
+    BMXCONbits.BMXWSDRM = 0x0;
 
     // enable multi vector interrupts
-   INTCONbits.MVEC = 0x1;
+    INTCONbits.MVEC = 0x1;
 
     // disable JTAG to get pins back
     DDPCONbits.JTAGEN = 0;
@@ -57,23 +56,41 @@ int main() {
     TRISA = 0x0000; //TRISAbits.TRISA4 = 0;
     TRISB = 0xFFFF; //TRISBbits.TRISB4 = 1;
    
-    //LATAbits.LATA4 = 1;
     __builtin_enable_interrupts();
-    
+    int t, goOn;
     int timer = 10000 * 2;
 
-    while(1) {
-        LATA = 0xFFFF;
-        _CP0_SET_COUNT(0);
-        while(_CP0_GET_COUNT() < timer)
+    _CP0_SET_COUNT(0);
+    
+    while(1)
+    {
+        goOn = 1;
+        if(LATB == 0x000)
         {
-            ;
+            t = _CP0_GET_COUNT() +4000000;
+            while(_CP0_GET_COUNT() < t)
+            {
+                ;
+            }
+            if(LATB == 0x000)
+            {
+                goOn = 0;
+            }
         }
-        LATA = 0x0000;
-        _CP0_SET_COUNT(0);
-        while(_CP0_GET_COUNT() < timer)
+        if(goOn == 1)
         {
-            ;
+            LATA = 0xFFFF;
+            t = _CP0_GET_COUNT() + timer;
+            while(_CP0_GET_COUNT() < t)
+            {
+                ;
+            }
+            LATA = 0x0000;
+            t = _CP0_GET_COUNT() + timer;
+            while(_CP0_GET_COUNT() < t)
+            {
+                ;
+            }
         }
-  }
+    }
 }
