@@ -65,14 +65,14 @@ int main() {
     while(1)
     {
         goOn = 1;
-        if(LATB == 0x000)
+        if(PORTBbits.RB4 == 0)
         {
             t = _CP0_GET_COUNT() +4000000;
             while(_CP0_GET_COUNT() < t)
             {
                 ;
             }
-            if(LATB == 0x000)
+            if(PORTBbits.RB4 == 0)
             {
                 goOn = 0;
             }
