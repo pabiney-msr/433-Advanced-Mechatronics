@@ -1,5 +1,7 @@
 #include <xc.h>           // processor SFR definitions
 #include <sys/attribs.h>  // __ISR macro
+#include "ILI9163C.h"
+#include <stdio.h>
 
 // DEVCFG0
 #pragma config DEBUG = 0b11 // no debugging (disabled)
@@ -37,10 +39,12 @@
 #pragma config FVBUSONIO = 1 // USB BUSON controlled by USB module
 
 int main() {
+    int num, i, t;
+    char message[100];
 
     __builtin_disable_interrupts();
 
-    //  set the CP0 CONFIG register to indicate that kseg0 is cacheable (0x3)
+    // set the CP0 CONFIG register to indicate that kseg0 is cacheable (0x3)
     __builtin_mtc0(_CP0_CONFIG, _CP0_CONFIG_SELECT, 0xa4210583);
 
     // 0 data RAM access wait states
@@ -53,31 +57,29 @@ int main() {
     DDPCONbits.JTAGEN = 0;
 
     // do your TRIS and LAT commands here
-    TRISA = 0x0000; //TRISAbits.TRISA4 = 0;
-    TRISB = 0xFFFF; //TRISBbits.TRISB4 = 1;
-   
-    __builtin_enable_interrupts();
-    int t, goOn;
-    int timer = 10000 * 2;
-
-    _CP0_SET_COUNT(0);
+    SPI1_init();
+    LCD_init();
     
-    while(1){
-        goOn = 1;
-        if(PORTBbits.RB4 == 0){
-            t = _CP0_GET_COUNT() +4000000;
-            while(_CP0_GET_COUNT() < t){;}
-            if(PORTBbits.RB4 == 0){
-                goOn = 0;
-            }
+    __builtin_enable_interrupts();
+    LCD_clearScreen(BLACK);
+    num = 0;
+    i = 1;
+    
+    while(1)
+    {
+        t = _CP0_GET_COUNT();
+        sprintf(message, "Hello world! %d ", num);
+        LCD_string(message, 28, 32, WHITE, BLACK);
+        LCD_bar(64, 40, num/2, 8, 50, RED, CYAN);
+        
+        // update
+        if(num >= 100 || num <= -100){
+            i*= -1;
         }
-        if(goOn == 1){
-            LATA = 0xFFFF;
-            t = _CP0_GET_COUNT() + timer;
-            while(_CP0_GET_COUNT() < t){;}
-            LATA = 0x0000;
-            t = _CP0_GET_COUNT() + timer;
-            while(_CP0_GET_COUNT() < t){;}
-        }
+        t = _CP0_GET_COUNT() - t;
+        num += i;
+        sprintf(message, "FPS = %.2f", 1.0/(t/24000000.0));
+        LCD_string(message, 28, 80, WHITE, BLACK);
+        while(_CP0_GET_COUNT() < t + 4800000){;};
     }
 }

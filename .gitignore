@@ -1,5 +1,46 @@
-/HW 1/HW1.X/nbproject/private/
+*.mp4
+*.ogv
+*.*~
+
 /HW 1/HW1.X/build/default/
 /HW 1/HW1.X/dist/default/
-*.mp4
+/HW 1/HW1.X/nbproject/
+/HW 1/HW1.X/Makefile
+
 /HW 2/*.*#*
+/HW 2/*.b*
+/HW 2/*.gpi
+/HW 2/*.GBL
+/HW 2/*.dri
+/HW 2/*.GBO
+/HW 2/*.GBP
+/HW 2/*.GBS
+/HW 2/*.GML
+/HW 2/*.GTL
+/HW 2/*.GTO
+/HW 2/*.GTP
+/HW 2/*.GTS
+/HW 2/*.pro
+/HW 2/*.TXT
+/HW 2/*.l
+/HW 2/*.epf
+
+/HW 3/*.*#*
+/HW 3/*.cam
+/HW 3/*.zip
+
+/HW 4/HW4.X/build/default/
+/HW 4/HW4.X/dist/default/
+/HW 4/HW4.X/nbproject/
+/HW 4/HW4.X/Makefile
+
+/HW 5/HW5.X/nbproject/
+/HW 5/HW5.X/build/default/
+/HW 5/HW5.X/dist/default/
+/HW 5/HW5.X/Makefile
+
+/HW 6/HW6.X/nbproject/
+/HW 6/HW6.X/Makefile
+/HW 6/HW6.X/build/default/
+/HW 6/HW6.X/dist/default/
+/HW 7/HW7.X/nbproject/private/
