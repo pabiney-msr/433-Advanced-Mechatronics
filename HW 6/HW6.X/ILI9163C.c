@@ -7,7 +7,7 @@
 // CS - B7
 // RESET - 3.3V
 // A0 - B15
-// SDA - A1
+// SDA - B13
 // SCK - B14
 // LED - 3.3V
 
