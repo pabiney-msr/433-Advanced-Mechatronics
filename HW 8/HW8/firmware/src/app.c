@@ -54,6 +54,9 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 
 #include "app.h"
+#include <stdio.h>
+#include "ILI9163C.h"
+#include "i2c.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -96,6 +99,11 @@ APP_DATA appData;
 
 /* TODO:  Add any necessary local functions.
 */
+#define dataLen 14
+
+typedef struct {
+    unsigned short x, y, z;
+} Vector;
 
 
 // *****************************************************************************
@@ -121,10 +129,10 @@ void APP_Initialize ( void )
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
-    
-    
-    TRISA = 0x0000; //TRISAbits.TRISA4 = 0;
-    TRISB = 0xFFFF; //TRISBbits.TRISB4 = 1;
+    SPI1_init();
+    LCD_init();
+    i2c_init();
+    i2c_expander_init();
 }
 
 
@@ -158,30 +166,43 @@ void APP_Tasks ( void )
 
         case APP_STATE_SERVICE_TASKS:
         {
-            int t, goOn;
-            int timer = 10000 * 2;
-
-            _CP0_SET_COUNT(0);
+            char message[100];
+            Vector gyro, accel;
+            unsigned short temperature;
+            float temp_x, temp_y;
+            unsigned char data[dataLen];    
+            int t; 
+            
+            LCD_clearScreen(BLACK);
     
-            while(1){
-                goOn = 1;
-                if(PORTBbits.RB4 == 0){
-                    t = _CP0_GET_COUNT() +4000000;
-                    while(_CP0_GET_COUNT() < t){;}
-                    if(PORTBbits.RB4 == 0){
-                        goOn = 0;
-                    }
-                }
-                if(goOn == 1){
-                    LATA = 0xFFFF;
-                    t = _CP0_GET_COUNT() + timer;
-                    while(_CP0_GET_COUNT() < t){;}
-                    LATA = 0x0000;
-                    t = _CP0_GET_COUNT() + timer;
-                    while(_CP0_GET_COUNT() < t){;}
-                }
+            sprintf(message, "WHOAMI:%d", i2c_expander_get(WHO_AM_I));
+            LCD_string(message, 10, 80, WHITE, BLACK);
+    
+            while(1)
+            {
+                t = _CP0_GET_COUNT() + 4800000;
+                i2c_receive_multiple(OUT_TEMP_L, data, dataLen);
+                temperature = (data[ 1] << 8) | data[ 0];
+                gyro.x      = (data[ 3] << 8) | data[ 2];
+                gyro.y      = (data[ 5] << 8) | data[ 4];
+                gyro.z      = (data[ 7] << 8) | data[ 6];
+                accel.x     = (data[ 9] << 8) | data[ 8];
+                accel.y     = (data[11] << 8) | data[10];
+                accel.z     = (data[13] << 8) | data[12];      
+                    
+                temp_x = accel.x*.0061;
+                temp_y = accel.y*.0061;
+                sprintf(message, "AX: %.2f   ", temp_x);
+                LCD_string(message, 10, 100, WHITE, BLACK);
+                    
+                sprintf(message, "AY: %.2f   ", temp_y);
+                LCD_string(message, 10, 90, WHITE, BLACK);
+                    
+                LCD_bar(64,64,-(temp_x),4,50,  RED,BLACK,0);
+                LCD_bar(64,64,-(temp_y),4,50,GREEN,BLACK,1);
+                
+                while(_CP0_GET_COUNT() < t){;}
             }
-            break;
         }
 
         /* TODO: implement your application state machine.*/
