@@ -54,3 +54,10 @@
 /HW 8/HW8/firmware/HW8.X/build/default/
 /HW 8/HW8/firmware/src/system_config/default/
 /HW 8/HW8/firmware/HW8.X/dist/default/
+
+/HW 9/HW 9/firmware/HW 9.X/Makefile
+/HW 9/HW 9/firmware/HW 9.X/nbproject/
+/HW 9/HW 9/firmware/HW 9.X/build/default/
+/HW 9/HW 9/firmware/src/system_config/default/
+/HW 9/HW 9/firmware/HW 9.X/dist/default/
+/HW 9/HW 9/firmware/*.hconfig
