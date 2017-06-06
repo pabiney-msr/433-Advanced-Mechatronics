@@ -51,6 +51,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "app.h"
 #include <stdio.h>
 #include <xc.h>
+#include "i2c.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -85,6 +86,16 @@ APP_DATA appData;
 
 /* TODO:  Add any necessary callback functions.
  */
+#define dataLen 14
+
+typedef struct {
+    unsigned short x, y, z;
+} Vector;
+
+unsigned char data[dataLen];
+Vector gyro, accel;
+unsigned short temperature;
+int imuHasStarted = false;
 
 /*******************************************************
  * USB CDC Device Events - Application Event Handler
@@ -297,6 +308,9 @@ bool APP_StateReset(void) {
  */
 
 void APP_Initialize(void) {
+    i2c_init();
+    i2c_expander_init();
+    
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
 
@@ -408,7 +422,7 @@ void APP_Tasks(void) {
             /* Check if a character was received or a switch was pressed.
              * The isReadComplete flag gets updated in the CDC event handler. */
 
-            if (appData.isReadComplete || _CP0_GET_COUNT() - startTime > (48000000 / 2 / 5)) {
+            if (appData.isReadComplete || _CP0_GET_COUNT() - startTime > (48000000 / 2 / 100)) {
                 appData.state = APP_STATE_SCHEDULE_WRITE;
             }
 
@@ -416,7 +430,6 @@ void APP_Tasks(void) {
 
 
         case APP_STATE_SCHEDULE_WRITE:
-
             if (APP_StateReset()) {
                 break;
             }
@@ -427,17 +440,41 @@ void APP_Tasks(void) {
             appData.isWriteComplete = false;
             appData.state = APP_STATE_WAIT_FOR_WRITE_COMPLETE;
 
-            len = sprintf(dataOut, "%d\r\n", i);
-            i++;
+            dataOut[0] = 0;
+            len = 1;
             if (appData.isReadComplete) {
+                if(readBuffer[0] == 'r')
+                {
+                    dataOut[0] = 0;
+                    imuHasStarted = true;
+                }
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
-                        &appData.writeTransferHandle,
-                        appData.readBuffer, 1,
+                        &appData.writeTransferHandle,dataOut, 1,
                         USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
-            } else {
-                USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
-                        &appData.writeTransferHandle, dataOut, len,
-                        USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
+            } 
+            else {
+                if(imuHasStarted){
+                    if(i != 0){
+                        i2c_receive_multiple(OUT_TEMP_L, data, dataLen);
+                        temperature = (data[ 1] << 8) | data[ 0];
+                        gyro.x      = (data[ 3] << 8) | data[ 2];
+                        gyro.y      = (data[ 5] << 8) | data[ 4];
+                        gyro.z      = (data[ 7] << 8) | data[ 6];
+                        accel.x     = (data[ 9] << 8) | data[ 8];
+                        accel.y     = (data[11] << 8) | data[10];
+                        accel.z     = (data[13] << 8) | data[12];      
+                        len = sprintf(dataOut, "%d\t|%7.2f\t|%7.2f\t|%7.2f\t|%7.2f\t|%7.2f\t|%7.2f\t\r\n", i, accel.x*0.00061, accel.y*0.00061, accel.z*0.00061, gyro.x*.035, gyro.y*.035 , gyro.z*.035);
+                    }
+                    else{
+                        len = sprintf(dataOut, "\r\n%s\t|%7s\t|%7s\t|%7s\t|%7s\t|%7s\t|%7s\t\r\n","Index","ax","ay","az","gx","gy","gz");
+                    }
+                    ++i;
+                }
+                if(i >= 101){
+                    i = 0;
+                    imuHasStarted = false;
+                }
+                USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0, &appData.writeTransferHandle, dataOut, len, USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
                 startTime = _CP0_GET_COUNT();
             }
             break;
