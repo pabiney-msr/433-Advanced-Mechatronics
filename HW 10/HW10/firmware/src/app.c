@@ -86,16 +86,15 @@ APP_DATA appData;
 
 /* TODO:  Add any necessary callback functions.
  */
-#define dataLen 14
-
-typedef struct {
-    unsigned short x, y, z;
-} Vector;
-
+#define dataLen 6
+#define filterSize 4
 unsigned char data[dataLen];
-Vector gyro, accel;
-unsigned short temperature;
 int imuHasStarted = false;
+
+signed short buffer[filterSize];
+signed short prev = 0;
+float fir[] = {.0201, .2309, .4981 ,.2309 ,.0201};
+float iir[] = {.25,.75};
 
 /*******************************************************
  * USB CDC Device Events - Application Event Handler
@@ -348,6 +347,43 @@ void APP_Initialize(void) {
     startTime = _CP0_GET_COUNT();
 }
 
+static float MAF(signed short *buffer)
+{
+    int j = 0;
+    float sum = 0;
+    for(; j < filterSize; ++j){
+        sum += buffer[j];
+    }
+    return sum/filterSize;
+}
+
+static float FIR(signed short *buffer)
+{
+    int j = 0;
+    float sum = 0;
+    for(; j < filterSize; ++j){
+        sum += fir[j + 1] * buffer[j];
+    }
+    return sum + fir[0];
+}
+static void resetBuffer(signed short *buffer)
+{
+    int j=0;
+    for(; j < filterSize; ++j){
+        buffer[j] = 0;
+    }
+}
+
+static void shiftBuffer(signed short *buffer, signed short value)
+{
+    int j=0;
+    for(; j < filterSize; ++j){
+        signed short temp = buffer[j];
+        buffer[j + 1] = temp;
+    }
+    buffer[0] = value;
+}
+
 /******************************************************************************
   Function:
     void APP_Tasks ( void )
@@ -456,23 +492,21 @@ void APP_Tasks(void) {
                 if(imuHasStarted){
                     if(i != 0){
                         i2c_receive_multiple(OUT_TEMP_L, data, dataLen);
-                        temperature = (data[ 1] << 8) | data[ 0];
-                        gyro.x      = (data[ 3] << 8) | data[ 2];
-                        gyro.y      = (data[ 5] << 8) | data[ 4];
-                        gyro.z      = (data[ 7] << 8) | data[ 6];
-                        accel.x     = (data[ 9] << 8) | data[ 8];
-                        accel.y     = (data[11] << 8) | data[10];
-                        accel.z     = (data[13] << 8) | data[12];      
-                        len = sprintf(dataOut, "%d\t|%7.2f\t|%7.2f\t|%7.2f\t|%7.2f\t|%7.2f\t|%7.2f\t\r\n", i, accel.x*0.00061, accel.y*0.00061, accel.z*0.00061, gyro.x*.035, gyro.y*.035 , gyro.z*.035);
-                    }
-                    else{
-                        len = sprintf(dataOut, "\r\n%s\t|%7s\t|%7s\t|%7s\t|%7s\t|%7s\t|%7s\t\r\n","Index","ax","ay","az","gx","gy","gz");
+                        signed short z = (data[5] << 8) | data[4];      
+                        shiftBuffer(buffer, z);
+                        float raw = z;
+                        float maf = MAF(buffer);
+                        float new_iir = iir[0]*(float)prev + iir[1] * raw;
+                        float new_fir = FIR(buffer);
+                        len = sprintf(dataOut, "%d %7.2f %7.2f %7.2f %7.2f\r\n", i, raw, maf, new_iir, new_fir);
+                        prev = z;
                     }
                     ++i;
                 }
                 if(i >= 101){
                     i = 0;
-                    imuHasStarted = false;
+                    imuHasStarted = false;                    
+                    resetBuffer(buffer);
                 }
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0, &appData.writeTransferHandle, dataOut, len, USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
                 startTime = _CP0_GET_COUNT();
