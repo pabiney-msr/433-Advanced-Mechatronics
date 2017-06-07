@@ -82,3 +82,10 @@
 /HW 14/HW14/firmware/HW14.X/dist/default/
 /HW 14/HW14/firmware/src/system_config/default/
 /HW 14/HW14/firmware/*.hconfig
+
+/HW 18/HW18/firmware/HW18.X/Makefile
+/HW 18/HW18/firmware/HW18.X/nbproject/
+/HW 18/HW18/firmware/HW18.X/build/default/
+/HW 18/HW18/firmware/HW18.X/dist/default/
+/HW 18/HW18/firmware/src/system_config/default/
+/HW 18/HW18/firmware/*.hconfig
