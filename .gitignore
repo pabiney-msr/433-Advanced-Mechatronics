@@ -76,12 +76,44 @@
 /HW 11/HW11/firmware/src/system_config/default/
 /HW 11/HW11/firmware/*.hconfig
 
+/HW 12/HelloWorld/*.iml
+/HW 12/HelloWorld/.gradle
+/HW 12/HelloWorld/*.gitignore
+/HW 12/HelloWorld/local.properties
+/HW 12/HelloWorld/.idea/workspace.xml
+/HW 12/HelloWorld/.idea/libraries
+/HW 12/HelloWorld/.DS_Store
+/HW 12/HelloWorld/build
+/HW 12/HelloWorld/captures
+/HW 12/HelloWorld/.externalNativeBuild
+
+/HW 13/HW13/*.iml
+/HW 13/HW13/.gradle
+/HW 13/HW13/*.gitignore
+/HW 13/HW13/local.properties
+/HW 13/HW13/.idea/workspace.xml
+/HW 13/HW13/.idea/libraries
+/HW 13/HW13/.DS_Store
+/HW 13/HW13/build
+/HW 13/HW13/captures
+/HW 13/HW13/.externalNativeBuild
+
 /HW 14/HW14/firmware/HW14.X/Makefile
 /HW 14/HW14/firmware/HW14.X/nbproject/
 /HW 14/HW14/firmware/HW14.X/build/default/
 /HW 14/HW14/firmware/HW14.X/dist/default/
 /HW 14/HW14/firmware/src/system_config/default/
 /HW 14/HW14/firmware/*.hconfig
+/HW 14/Android/*.iml
+/HW 14/Android/.gradle
+/HW 14/Android/*.gitignore
+/HW 14/Android/local.properties
+/HW 14/Android/.idea/workspace.xml
+/HW 14/Android/.idea/libraries
+/HW 14/Android/.DS_Store
+/HW 14/Android/build
+/HW 14/Android/captures
+/HW 14/Android/.externalNativeBuild
 
 /HW 18/HW18/firmware/HW18.X/Makefile
 /HW 18/HW18/firmware/HW18.X/nbproject/
