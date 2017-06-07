@@ -306,6 +306,7 @@ bool APP_StateReset(void) {
  */
 
 void APP_Initialize(void) {
+    // brushed motor
     RPA0Rbits.RPA0R = 0b0101; // A0 is OC1
     TRISAbits.TRISA1 = 0;
     LATAbits.LATA1 = 0; // A1 is the direction pin to go along with OC1
@@ -326,6 +327,17 @@ void APP_Initialize(void) {
     T2CONbits.ON = 1;
     OC1CONbits.ON = 1;
     OC4CONbits.ON = 1;
+    
+    // servo
+    T3CONbits.TCKPS = 4; // prescaler N=16
+    PR3 = 60000 - 1; // 50Hz
+    TMR3 = 0;
+    OC3CONbits.OCM = 0b110; // PWM mode without fault pin; other OC1CON bits are defaults
+    OC3CONbits.OCTSEL = 1; // use timer3
+    OC3RS = 4500; // should set the motor to 90 degrees (0.5ms to 2.5ms is 1500 to 7500 for 0 to 180 degrees)
+    OC3R = 4500; // read-only
+    T3CONbits.ON = 1;
+    OC3CONbits.ON = 1;
     
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
@@ -421,11 +433,14 @@ void APP_Tasks(void) {
                         &appData.readTransferHandle, appData.readBuffer,
                         APP_READ_BUFFER_SIZE);
                 
+                // set brushed motor
                 LATAbits.LATA1 = 1; // direction
                 OC1RS = 600; // velocity, 50%
                 LATBbits.LATB3 = 0; // direction
                 OC4RS = 600; // velocity, 50%
                 
+                // set servo
+                OC3RS = 3500; // should set the motor to 60 degrees (0.5ms to 2.5ms is 1500 to 7500 for 0 to 180 degrees)
                 if (appData.readTransferHandle == USB_DEVICE_CDC_TRANSFER_HANDLE_INVALID) {
                     appData.state = APP_STATE_ERROR;
                     break;
