@@ -75,3 +75,10 @@
 /HW 11/HW11/firmware/HW11.X/dist/default/
 /HW 11/HW11/firmware/src/system_config/default/
 /HW 11/HW11/firmware/*.hconfig
+
+/HW 14/HW14/firmware/HW14.X/Makefile
+/HW 14/HW14/firmware/HW14.X/nbproject/
+/HW 14/HW14/firmware/HW14.X/build/default/
+/HW 14/HW14/firmware/HW14.X/dist/default/
+/HW 14/HW14/firmware/src/system_config/default/
+/HW 14/HW14/firmware/*.hconfig
