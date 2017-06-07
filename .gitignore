@@ -77,15 +77,15 @@
 /HW 11/HW11/firmware/*.hconfig
 
 /HW 12/HelloWorld/*.iml
-/HW 12/HelloWorld/.gradle
-/HW 12/HelloWorld/*.gitignore
+/HW 12/HelloWorld/*.gradle
+/HW 12/HelloWorld/.gitignore
 /HW 12/HelloWorld/local.properties
-/HW 12/HelloWorld/.idea/workspace.xml
-/HW 12/HelloWorld/.idea/libraries
+/HW 12/HelloWorld/.idea/
 /HW 12/HelloWorld/.DS_Store
 /HW 12/HelloWorld/build
 /HW 12/HelloWorld/captures
 /HW 12/HelloWorld/.externalNativeBuild
+/HW 12/HelloWorld/app/.gitignore
 
 /HW 13/HW13/*.iml
 /HW 13/HW13/.gradle
