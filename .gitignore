@@ -88,15 +88,15 @@
 /HW 12/HelloWorld/app/.gitignore
 
 /HW 13/HW13/*.iml
-/HW 13/HW13/.gradle
-/HW 13/HW13/*.gitignore
+/HW 13/HW13/*.gradle
+/HW 13/HW13/.gitignore
 /HW 13/HW13/local.properties
-/HW 13/HW13/.idea/workspace.xml
-/HW 13/HW13/.idea/libraries
+/HW 13/HW13/.idea/
 /HW 13/HW13/.DS_Store
 /HW 13/HW13/build
 /HW 13/HW13/captures
 /HW 13/HW13/.externalNativeBuild
+/HW 13/HW13/app/.gitignore
 
 /HW 14/HW14/firmware/HW14.X/Makefile
 /HW 14/HW14/firmware/HW14.X/nbproject/
@@ -105,15 +105,15 @@
 /HW 14/HW14/firmware/src/system_config/default/
 /HW 14/HW14/firmware/*.hconfig
 /HW 14/Android/*.iml
-/HW 14/Android/.gradle
-/HW 14/Android/*.gitignore
+/HW 14/Android/*.gradle
+/HW 14/Android/.gitignore
 /HW 14/Android/local.properties
-/HW 14/Android/.idea/workspace.xml
-/HW 14/Android/.idea/libraries
+/HW 14/Android/.idea/
 /HW 14/Android/.DS_Store
 /HW 14/Android/build
 /HW 14/Android/captures
 /HW 14/Android/.externalNativeBuild
+/HW 14/Android/app/.gitignore
 
 /HW 18/HW18/firmware/HW18.X/Makefile
 /HW 18/HW18/firmware/HW18.X/nbproject/
@@ -121,3 +121,14 @@
 /HW 18/HW18/firmware/HW18.X/dist/default/
 /HW 18/HW18/firmware/src/system_config/default/
 /HW 18/HW18/firmware/*.hconfig
+
+/HW 19/HW19/*.iml
+/HW 19/HW19/*.gradle
+/HW 19/HW19/.gitignore
+/HW 19/HW19/local.properties
+/HW 19/HW19/.idea/
+/HW 19/HW19/.DS_Store
+/HW 19/HW19/build
+/HW 19/HW19/captures
+/HW 19/HW19/.externalNativeBuild
+/HW 19/HW19/app/.gitignore
