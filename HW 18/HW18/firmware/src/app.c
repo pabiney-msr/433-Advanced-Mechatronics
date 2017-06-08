@@ -335,6 +335,7 @@ void APP_Initialize(void) {
     OC4CONbits.ON = 1;
     
     // servo
+    RPB14Rbits.RPB14R = 0b0101; // B14 is OC3
     T3CONbits.TCKPS = 4; // prescaler N=16
     PR3 = 60000 - 1; // 50Hz
     TMR3 = 0;
@@ -379,9 +380,9 @@ void APP_Initialize(void) {
     /* Set up the read buffer */
     appData.readBuffer = &readBuffer[0];
 
-    LATAbits.LATA1 = 1; // direction
+    LATAbits.LATA1 = 1;
     OC1RS = (int)(1200 * wheel[0]); 
-    LATBbits.LATB3 = 0; // direction
+    LATBbits.LATB3 = 0;
     OC4RS = (int)(1200 * wheel[1]);
     OC3RS = 3500;
         
@@ -440,21 +441,18 @@ void APP_Tasks(void) {
                 appData.isReadComplete = false;
                 int ii = 0;
                 while (appData.readBuffer[ii] != 0) {
-                    if (appData.readBuffer[ii] == '\n' || appData.readBuffer[ii] == '\r')
-                    {
+                    if (appData.readBuffer[ii] == '\n' || appData.readBuffer[ii] == '\r'){
                         raw[raw_index] = 0;
                         sscanf(raw, "%f %f %f", &wheel[0], &wheel[1], &servo);
                         gotRaw = 1;
                         break;
                     }
-                    else if (appData.readBuffer[ii] != 0) 
-                    {
+                    else if (appData.readBuffer[ii] != 0){
                         raw[raw_index] = appData.readBuffer[ii];
                         ++raw_index;
                         ++ii;
                     }
-                    else
-                    {
+                    else{
                         break;
                     }
                 }
@@ -504,7 +502,7 @@ void APP_Tasks(void) {
                 else if(servo < 0){
                     servo = 0;
                 }
-                OC3RS = (int)(1500 + servo / .03); 
+                OC3RS = (int)(1500 + servo * 33.3333); 
                 raw_index = 0;
                 gotRaw = 0;
                 memset(raw,0,64);
