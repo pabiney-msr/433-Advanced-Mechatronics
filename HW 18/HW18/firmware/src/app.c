@@ -68,6 +68,12 @@ uint8_t APP_MAKE_BUFFER_DMA_READY readBuffer[APP_READ_BUFFER_SIZE];
 int len, i = 0;
 int startTime = 0;
 
+char raw[64];
+int raw_index = 0;
+int gotRaw = 0;
+double wheel[] = {0.5, 0.5};
+double servo = 0;
+
 // *****************************************************************************
 /* Application Data
 
@@ -373,6 +379,12 @@ void APP_Initialize(void) {
     /* Set up the read buffer */
     appData.readBuffer = &readBuffer[0];
 
+    LATAbits.LATA1 = 1; // direction
+    OC1RS = (int)(1200 * wheel[0]); 
+    LATBbits.LATB3 = 0; // direction
+    OC4RS = (int)(1200 * wheel[1]);
+    OC3RS = 3500;
+        
     startTime = _CP0_GET_COUNT();
 }
 
@@ -423,24 +435,35 @@ void APP_Tasks(void) {
 
             /* If a read is complete, then schedule a read
              * else wait for the current read to complete */
-
             appData.state = APP_STATE_WAIT_FOR_READ_COMPLETE;
             if (appData.isReadComplete == true) {
                 appData.isReadComplete = false;
+                int ii = 0;
+                while (appData.readBuffer[ii] != 0) {
+                    if (appData.readBuffer[ii] == '\n' || appData.readBuffer[ii] == '\r')
+                    {
+                        raw[raw_index] = 0;
+                        sscanf(raw, "%f %f %f", &wheel[0], &wheel[1], &servo);
+                        gotRaw = 1;
+                        break;
+                    }
+                    else if (appData.readBuffer[ii] != 0) 
+                    {
+                        raw[raw_index] = appData.readBuffer[ii];
+                        ++raw_index;
+                        ++ii;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
                 appData.readTransferHandle = USB_DEVICE_CDC_TRANSFER_HANDLE_INVALID;
 
                 USB_DEVICE_CDC_Read(USB_DEVICE_CDC_INDEX_0,
                         &appData.readTransferHandle, appData.readBuffer,
                         APP_READ_BUFFER_SIZE);
                 
-                // set brushed motor
-                LATAbits.LATA1 = 1; // direction
-                OC1RS = 600; // velocity, 50%
-                LATBbits.LATB3 = 0; // direction
-                OC4RS = 600; // velocity, 50%
-                
-                // set servo
-                OC3RS = 3500; // should set the motor to 60 degrees (0.5ms to 2.5ms is 1500 to 7500 for 0 to 180 degrees)
                 if (appData.readTransferHandle == USB_DEVICE_CDC_TRANSFER_HANDLE_INVALID) {
                     appData.state = APP_STATE_ERROR;
                     break;
@@ -467,30 +490,29 @@ void APP_Tasks(void) {
 
 
         case APP_STATE_SCHEDULE_WRITE:
-
-            if (APP_StateReset()) {
-                break;
-            }
-
             /* Setup the write */
-
             appData.writeTransferHandle = USB_DEVICE_CDC_TRANSFER_HANDLE_INVALID;
             appData.isWriteComplete = false;
             appData.state = APP_STATE_WAIT_FOR_WRITE_COMPLETE;
-
-            len = sprintf(dataOut, "%d\r\n", i);
-            i++;
-            if (appData.isReadComplete) {
-                USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
-                        &appData.writeTransferHandle,
-                        appData.readBuffer, 1,
-                        USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
-            } else {
-                USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
+            len = sprintf(dataOut,"left: %f, right: %f, servo: %f\r\n", wheel[0], wheel[1], servo);
+            if (gotRaw) {
+                OC1RS = (int)(1200 * wheel[0]); 
+                OC4RS = (int)(1200 * wheel[1]); 
+                if (servo > 180){
+                    servo = 180;
+                }              
+                else if(servo < 0){
+                    servo = 0;
+                }
+                OC3RS = (int)(1500 + servo / .03); 
+                raw_index = 0;
+                gotRaw = 0;
+                memset(raw,0,64);
+            } 
+            USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle, dataOut, len,
                         USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
-                startTime = _CP0_GET_COUNT();
-            }
+            startTime = _CP0_GET_COUNT();
             break;
 
         case APP_STATE_WAIT_FOR_WRITE_COMPLETE:
