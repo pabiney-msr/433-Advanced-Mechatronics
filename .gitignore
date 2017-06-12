@@ -143,9 +143,9 @@
 /HW 20/Android/HW20/captures
 /HW 20/Android/HW20/.externalNativeBuild
 /HW 20/Android/HW20/app/.gitignore
-/HW 20/HW20/firmware/HW18.X/Makefile
-/HW 20/HW20/firmware/HW18.X/nbproject/
-/HW 20/HW20/firmware/HW18.X/build/default/
-/HW 20/HW20/firmware/HW18.X/dist/default/
+/HW 20/HW20/firmware/HW20.X/Makefile
+/HW 20/HW20/firmware/HW20.X/nbproject/
+/HW 20/HW20/firmware/HW20.X/build/default/
+/HW 20/HW20/firmware/HW20.X/dist/default/
 /HW 20/HW20/firmware/src/system_config/default/
 /HW 20/HW20/firmware/*.hconfig
